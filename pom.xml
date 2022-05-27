@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>customListener</groupId>
     <artifactId>customListener</artifactId>
-    <version>1.0.10-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>mule-extension</packaging>
     <name>CustomListener Extension</name>
 

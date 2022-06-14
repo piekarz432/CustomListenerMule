@@ -1,8 +1,11 @@
 package org.mule.extension.customlistener.internal;
 
-import org.mule.runtime.extension.api.annotation.Extension;
 import org.mule.runtime.extension.api.annotation.Configurations;
+import org.mule.runtime.extension.api.annotation.Extension;
 import org.mule.runtime.extension.api.annotation.dsl.xml.Xml;
+import org.mule.runtime.extension.api.annotation.metadata.OutputResolver;
+
+import java.util.Map;
 
 
 /**

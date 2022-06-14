@@ -1,14 +1,9 @@
 package org.mule.extension.customlistener.internal;
 
-import org.mule.runtime.api.connection.ConnectionException;
-import org.mule.runtime.extension.api.annotation.param.Parameter;
+import org.mule.runtime.api.connection.*;
 import org.mule.runtime.extension.api.annotation.param.Optional;
-import org.mule.runtime.api.connection.ConnectionValidationResult;
-import org.mule.runtime.api.connection.PoolingConnectionProvider;
-import org.mule.runtime.api.connection.ConnectionProvider;
-import org.mule.runtime.api.connection.CachedConnectionProvider;
-import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
-
+import org.mule.runtime.extension.api.annotation.param.Parameter;
+import org.mule.runtime.extension.api.annotation.param.display.Password;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,27 +19,27 @@ import org.slf4j.LoggerFactory;
  * will be pooled and reused. There are other implementations like {@link CachedConnectionProvider} which lazily creates and
  * caches connections or simply {@link ConnectionProvider} if you want a new connection each time something requires one.
  */
-public class CustomListenerConnectionProvider implements ConnectionProvider<CustomListenerConnection> {
+public class CustomListenerConnectionProvider implements PoolingConnectionProvider<CustomListenerConnection> {
 
   private final Logger LOGGER = LoggerFactory.getLogger(CustomListenerConnectionProvider.class);
 
- /**
-  * A parameter that is always required to be configured.
-  */
   @Parameter
-  private String requiredParameter;
+  private String loginEndpoint;
 
- /**
-  * A parameter that is not required to be configured by the user.
-  */
-  @DisplayName("Friendly Name")
   @Parameter
-  @Optional(defaultValue = "100")
-  private int optionalParameter;
+  private String username;
+
+  @Parameter
+  @Password
+  private String password;
+
+  @Parameter
+  private String channel;
+
 
   @Override
   public CustomListenerConnection connect() throws ConnectionException {
-    return new CustomListenerConnection(requiredParameter + ":" + optionalParameter);
+    return new CustomListenerConnection(loginEndpoint, username, password, channel);
   }
 
   @Override
@@ -52,7 +47,7 @@ public class CustomListenerConnectionProvider implements ConnectionProvider<Cust
     try {
       connection.invalidate();
     } catch (Exception e) {
-      LOGGER.error("Error while disconnecting [" + connection.getId() + "]: " + e.getMessage(), e);
+      LOGGER.error("Error while disconnecting [" + connection.getUsername() + "]: " + e.getMessage(), e);
     }
   }
 

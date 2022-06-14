@@ -1,9 +1,8 @@
 package org.mule.extension.customlistener.internal;
 
-import org.mule.runtime.extension.api.annotation.Operations;
 import org.mule.runtime.extension.api.annotation.Sources;
 import org.mule.runtime.extension.api.annotation.connectivity.ConnectionProviders;
-import org.mule.runtime.extension.api.annotation.param.MediaType;
+import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 
 /**
@@ -15,6 +14,7 @@ import org.mule.runtime.extension.api.annotation.param.Parameter;
 public class CustomListenerConfiguration {
 
   @Parameter
+  @Optional
   private String configId;
 
   public String getConfigId(){

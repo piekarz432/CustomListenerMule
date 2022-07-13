@@ -1,4 +1,4 @@
-package org.mule.extension.customlistener.internal;
+package org.mule.extension.cdc.listener;
 
 import org.mule.metadata.api.builder.BaseTypeBuilder;
 import org.mule.metadata.api.model.MetadataType;

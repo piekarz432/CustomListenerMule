@@ -1,17 +1,15 @@
-package org.mule.extension.customlistener.internal;
+package org.mule.extension.cdc;
 
 import com.salesforce.emp.connector.BayeuxParameters;
-import com.salesforce.emp.connector.EmpConnector;
 import com.salesforce.emp.connector.LoginHelper;
 import com.salesforce.emp.connector.TopicSubscription;
 import com.salesforce.emp.connector.example.BearerTokenProvider;
 import com.salesforce.emp.connector.example.LoggingListener;
 import org.eclipse.jetty.util.ajax.JSON;
+import org.mule.extension.connector.EmpConnector;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.source.SourceCallback;
 import org.mule.runtime.extension.api.runtime.source.SourceCallbackContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 import java.util.Map;
@@ -20,19 +18,14 @@ import java.util.function.Consumer;
 
 import static org.cometd.bayeux.Channel.*;
 
-public class LoginExample {
-
-    private final Logger LOGGER = LoggerFactory.getLogger(LoginExample.class);
+public class CdcConnectionProvider {
 
     private final SourceCallback<Map<String, Object>, Object> sourceCallback;
 
-    public LoginExample(SourceCallback<Map<String, Object>, Object> sourceCallback) {
+    public CdcConnectionProvider(SourceCallback<Map<String, Object>, Object> sourceCallback) {
         this.sourceCallback = sourceCallback;
     }
 
-
-    // More than one thread can be used in the thread pool which leads to parallel processing of events which may be acceptable by the application
-    // The main purpose of asynchronous event processing is to make sure that client is able to perform /meta/connect requests which keeps the session alive on the server side
     private final ExecutorService workerThreadPool = Executors.newFixedThreadPool(1);
 
     public void processEvents(String loginEndpoint, String username, String password, String channel, String replayId) throws Throwable {
@@ -68,7 +61,6 @@ public class LoginExample {
         }
 
         TopicSubscription subscription;
-
         try {
             subscription = connector.subscribe(channel, replayFrom, getConsumer()).get(5, TimeUnit.SECONDS);
         } catch (ExecutionException e) {
@@ -84,16 +76,23 @@ public class LoginExample {
 
     }
 
-    public Consumer<Map<String, Object>> getConsumer() {
+    private Consumer<Map<String, Object>> getConsumer() {
         return event -> workerThreadPool.submit(() ->
         {
-            System.out.printf("Received:\n%s, \nEvent processed by threadName:%s, threadId: %s%n", JSON.toString(event), Thread.currentThread().getName(), Thread.currentThread().getId());
-            messageToPayload(event);
+            System.out.printf("Received:\n%s%n", JSON.toString(event));
+            try {
+                messageToPayload(event);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         });
     }
 
-    private void messageToPayload(Map<String, Object> message) {
+    private void messageToPayload(Map<String, Object> message) throws InterruptedException {
         SourceCallbackContext context = sourceCallback.createContext();
+        context.addVariable("message", message);
         sourceCallback.handle(Result.<Map<String, Object>, Object>builder().output(message).build(), context);
     }
 }
+
+

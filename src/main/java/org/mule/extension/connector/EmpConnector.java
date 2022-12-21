@@ -296,7 +296,9 @@ public class EmpConnector {
 
         private boolean isError(Message message, String errorCode) {
             String error = (String)message.get(Message.ERROR_FIELD);
+            log.info("Error: {}", error);
             String failureReason = getFailureReason(message);
+            log.info("Failure Reason: {}", error);
 
             return (error != null && error.startsWith(errorCode)) ||
                     (failureReason != null && failureReason.startsWith(errorCode));
@@ -305,8 +307,10 @@ public class EmpConnector {
         private String getFailureReason(Message message) {
             String failureReason = null;
             Map<String, Object> ext = message.getExt();
+            log.info("Ext: {}", ext);
             if (ext != null) {
                 Map<String, Object> sfdc = (Map<String, Object>)ext.get("sfdc");
+                log.info("Sfdc: {}", sfdc);
                 if (sfdc != null) {
                     failureReason = (String)sfdc.get("failureReason");
                 }
